@@ -5,19 +5,9 @@ class TreePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('상단 노치 영역', style: TextStyle(color: Colors.white)),
         backgroundColor: Colors.black,
-        actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 16.0),
-            child: Center(
-              child: Text(
-                '현재 내 포인트: 0p',
-                style: TextStyle(color: Colors.white),
-              ),
-            ),
-          ),
-        ],
+        title: const Text('상단 노치 영역', style: TextStyle(color: Colors.white)),
+        centerTitle: true,
       ),
       body: Column(
         children: [
