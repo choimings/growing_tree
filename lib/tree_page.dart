@@ -15,6 +15,7 @@ class _TreePageState extends State<TreePage> {
   final List<int> levelPoints = [80, 240, 720, 2160]; // 레벨업 기준점
   int currentLevel = 0; // 현재 레벨 (0: 씨앗, 1: 새싹, 2: 나뭇가지, 3: 나무, 4: 꽃)
   String selectedCoupon = "플라스틱 방앗간 제품 교환권"; // 기본 선택 값
+  List<String> myCoupons = []; // 쿠폰 목록 저장
 
   // 레벨업 모달 표시
   void showLevelUpModal() {
@@ -153,13 +154,39 @@ class _TreePageState extends State<TreePage> {
     }
   }
 
+  // "내 쿠폰함" 모달
+  void showMyCouponsModal() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text("내 쿠폰함"),
+          content: myCoupons.isEmpty
+              ? Text("저장된 쿠폰이 없습니다.")
+              : Column(
+            mainAxisSize: MainAxisSize.min,
+            children: myCoupons.map((coupon) => Text("- $coupon")).toList(),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context); // 모달 닫기
+              },
+              child: Text("닫기"),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   // 2160점 채웠을 때 보여주는 완료 모달
   void showCompletionModal() {
     showDialog(
       context: context,
       barrierDismissible: false, // 모달 외부 클릭 시 닫히지 않음
       builder: (BuildContext context) {
-        return StatefulBuilder( // StatefulBuilder를 사용하여 상태 관리
+        return StatefulBuilder(
           builder: (context, setState) {
             return AlertDialog(
               title: Row(
@@ -218,8 +245,11 @@ class _TreePageState extends State<TreePage> {
                 ),
                 ElevatedButton(
                   onPressed: () {
+                    setState(() {
+                      myCoupons.add(selectedCoupon); // 선택한 쿠폰 저장
+                    });
                     Navigator.pop(context); // 모달 닫기
-                    print("선택된 쿠폰: $selectedCoupon"); // 선택된 쿠폰 처리
+                    print("선택된 쿠폰: $selectedCoupon"); // 디버깅 로그
                   },
                   child: Text("확인"),
                 ),
@@ -230,6 +260,7 @@ class _TreePageState extends State<TreePage> {
       },
     );
   }
+
 
 
 
@@ -276,14 +307,28 @@ class _TreePageState extends State<TreePage> {
           SizedBox(height: 20),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            child: Align(
-              alignment: Alignment.centerRight,
-              child: Text(
-                '현재 내 포인트: ${points}p',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-              ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween, // 좌우 배치
+              children: [
+                // 내 쿠폰함 버튼
+                ElevatedButton.icon(
+                  onPressed: showMyCouponsModal, // "내 쿠폰함" 클릭 시 모달 열기
+                  icon: Icon(Icons.card_giftcard, size: 20),
+                  label: Text("내 쿠폰함", style: TextStyle(fontSize: 14)),
+                  style: ElevatedButton.styleFrom(
+                    padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    textStyle: TextStyle(fontSize: 12),
+                  ),
+                ),
+                // 현재 내 포인트 텍스트
+                Text(
+                  '현재 내 포인트: ${points}p',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                ),
+              ],
             ),
           ),
+
           SizedBox(height: 20),
           Text(
             '내 나무',
