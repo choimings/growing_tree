@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import 'coupon_page.dart';
 
 class TreePage extends StatefulWidget {
   @override
@@ -17,6 +18,7 @@ class _TreePageState extends State<TreePage> {
   int currentLevel = 0; // 현재 레벨 (0: 씨앗, 1: 새싹, 2: 나뭇가지, 3: 나무, 4: 꽃)
   String selectedCoupon = "플라스틱 방앗간 제품 교환권"; // 기본 선택 값
   List<String> myCoupons = []; // 쿠폰 목록 저장
+  int couponCount = 0; // 현재 보유한 쿠폰 개수
 
   void showLevelUpModal() {
     showDialog(
@@ -333,30 +335,70 @@ class _TreePageState extends State<TreePage> {
       body: Column(
         children: [
           SizedBox(height: 20),
+          // 내 쿠폰함과 현재 내 포인트
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16.0),
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween, // 좌우 배치
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 // 내 쿠폰함 버튼
-                ElevatedButton.icon(
-                  onPressed: showMyCouponsModal, // "내 쿠폰함" 클릭 시 모달 열기
-                  icon: Icon(Icons.card_giftcard, size: 20),
-                  label: Text("내 쿠폰함", style: TextStyle(fontSize: 14)),
-                  style: ElevatedButton.styleFrom(
-                    padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    textStyle: TextStyle(fontSize: 12),
+                GestureDetector(
+                  onTap: () {
+                    // 쿠폰 페이지로 이동
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => CouponPage(couponCount: couponCount),
+                      ),
+                    );
+                  },
+                  child: Row(
+                    children: [
+                      Icon(Icons.card_giftcard, size: 20, color: Colors.black),
+                      SizedBox(width: 5),
+                      Text(
+                        "내 쿠폰함",
+                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                      ),
+                      SizedBox(width: 10),
+                      Container(
+                        padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                        decoration: BoxDecoration(
+                          border: Border.all(color: Colors.grey),
+                          borderRadius: BorderRadius.circular(15),
+                        ),
+                        child: Text(
+                          "$couponCount개",
+                          style: TextStyle(fontSize: 14),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
                 // 현재 내 포인트 텍스트
-                Text(
-                  '현재 내 포인트: ${points}p',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                Row(
+                  children: [
+                    Text(
+                      "현재 내 포인트",
+                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    ),
+                    SizedBox(width: 10),
+                    Container(
+                      padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Colors.grey),
+                        borderRadius: BorderRadius.circular(15),
+                      ),
+                      child: Text(
+                        "$points p",
+                        style: TextStyle(fontSize: 14),
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
           ),
-
           SizedBox(height: 20),
           Text(
             '내 나무',
