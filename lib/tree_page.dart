@@ -1,6 +1,86 @@
 import 'package:flutter/material.dart';
 
-class TreePage extends StatelessWidget {
+class TreePage extends StatefulWidget {
+  @override
+  _TreePageState createState() => _TreePageState();
+}
+
+class _TreePageState extends State<TreePage> {
+  int points = 2160; // 초기 포인트
+  final int maxPoints = 2160; // 상태바의 최대 값
+  String treeState = "씨앗"; // 나무 상태
+  String message = "응애 나 씨앗"; // 상태 메시지
+  double progress = 0; // 상태바 게이지 (0.0 ~ 1.0)
+  final List<int> levelPoints = [80, 240, 720, 2160]; // 레벨업 기준점
+  int currentLevel = 0; // 현재 레벨 (0: 씨앗, 1: 새싹, 2: 나뭇가지, 3: 나무, 4: 꽃)
+
+  // 레벨업 모달 표시
+  void showLevelUpModal() {
+    showDialog(
+      context: context,
+      barrierDismissible: false, // 모달 외부 클릭 시 닫히지 않음
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text("레벨업"),
+          content: Text("레벨업하시겠습니까?"),
+          actions: [
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pop(context);
+                levelUp();
+              },
+              child: Text("레벨업하기"),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  // 레벨업 처리
+  void levelUp() {
+    setState(() {
+      if (currentLevel < levelPoints.length) {
+        currentLevel++; // 다음 레벨로 증가
+        switch (currentLevel) {
+          case 1:
+            treeState = "새싹";
+            message = "응애 나 새싹";
+            break;
+          case 2:
+            treeState = "나뭇가지";
+            message = "ㅎㅇ 난 나뭇가지";
+            break;
+          case 3:
+            treeState = "나무";
+            message = "후훗 난 나무";
+            break;
+          case 4:
+            treeState = "꽃";
+            message = "짜잔 난 꽃";
+            break;
+        }
+      }
+    });
+  }
+
+  // 포인트 사용 및 상태바 증가
+  void usePoints(int cost) {
+    if (points >= cost) {
+      setState(() {
+        points -= cost; // 포인트 차감
+        progress += cost / maxPoints; // 사용된 포인트 비율만큼 게이지 증가
+        if (progress > 1.0) progress = 1.0; // 상태바 최대값 제한
+
+        // 특정 지점에서만 레벨업 모달 표시
+        if (currentLevel < levelPoints.length &&
+            progress >= levelPoints[currentLevel] / maxPoints) {
+          showLevelUpModal();
+        }
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -11,57 +91,99 @@ class TreePage extends StatelessWidget {
       ),
       body: Column(
         children: [
-          SizedBox(height: 20), // 상단 여백
-          // 현재 내 포인트 텍스트
+          SizedBox(height: 20),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16.0),
             child: Align(
-              alignment: Alignment.centerRight, // 우측 상단에 배치
+              alignment: Alignment.centerRight,
               child: Text(
-                '현재 내 포인트: 0p',
+                '현재 내 포인트: ${points}p',
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
               ),
             ),
           ),
-          SizedBox(height: 20), // 간격 추가
+          SizedBox(height: 20),
           Text(
             '내 나무',
             style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
           ),
-          SizedBox(height: 30), // 간격 추가
+          SizedBox(height: 30),
+          // 상태바
           // 상태바
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 30),
-            child: Container(
-              height: 20, // 상태바 전체 높이
-              decoration: BoxDecoration(
-                color: Colors.white, // 안 채워진 부분의 색상
-                border: Border.all(
-                  color: Color(0xFF67EACA), // 테두리 색상
-                  width: 2, // 테두리 두께
-                ),
-                borderRadius: BorderRadius.circular(10), // 테두리 라운드 처리
-              ),
-              child: Stack(
-                children: [
-                  // 채운 부분
-                  FractionallySizedBox(
-                    widthFactor: 0.5, // 상태바의 반 정도 채움 (50%)
-                    alignment: Alignment.centerLeft,
-                    child: Container(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                // 상태바
+                Stack(
+                  children: [
+                    // 상태바 배경
+                    Container(
+                      height: 20,
                       decoration: BoxDecoration(
-                        color: Color(0xFF67EACA), // 채운 부분의 색상
-                        borderRadius: BorderRadius.horizontal(
-                          left: Radius.circular(8), // 왼쪽 모서리 라운드 처리
+                        color: Colors.white,
+                        border: Border.all(
+                          color: Color(0xFF67EACA),
+                          width: 2,
+                        ),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                    // 채워진 부분
+                    FractionallySizedBox(
+                      widthFactor: progress,
+                      alignment: Alignment.centerLeft,
+                      child: Container(
+                        height: 20,
+                        decoration: BoxDecoration(
+                          color: Color(0xFF67EACA),
+                          borderRadius: BorderRadius.horizontal(
+                            left: Radius.circular(8),
+                          ),
                         ),
                       ),
                     ),
+                  ],
+                ),
+                SizedBox(height: 10), // 상태바와 숫자 간격
+                // 상태바 아래 숫자
+                Container(
+                  height: 30, // 숫자 영역 높이
+                  child: Stack(
+                    children: [
+                      // 숫자 0
+                      Positioned(
+                        left: 0, // 상태바의 시작점
+                        child: Text("0", style: TextStyle(fontSize: 12)),
+                      ),
+                      // 숫자 80
+                      Positioned(
+                        left: MediaQuery.of(context).size.width * (80 / maxPoints)-6,
+                        child: Text("80", style: TextStyle(fontSize: 12)),
+                      ),
+                      // 숫자 240
+                      Positioned(
+                        left: MediaQuery.of(context).size.width * (240 / maxPoints)-15,
+                        child: Text("240", style: TextStyle(fontSize: 12)),
+                      ),
+                      // 숫자 720
+                      Positioned(
+                        left: MediaQuery.of(context).size.width * (720 / maxPoints)-30,
+                        child: Text("720", style: TextStyle(fontSize: 12)),
+                      ),
+                      // 숫자 2160
+                      Positioned(
+                        right: 0, // 상태바의 끝점
+                        child: Text("2,160", style: TextStyle(fontSize: 12)),
+                      ),
+                    ],
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
-          SizedBox(height: 30), // 간격 추가
+          SizedBox(height: 10),
           // 텍스트 박스
           Container(
             padding: EdgeInsets.symmetric(vertical: 20, horizontal: 50),
@@ -70,17 +192,16 @@ class TreePage extends StatelessWidget {
               borderRadius: BorderRadius.circular(10),
             ),
             child: Text(
-              '응애 나 씨앗',
+              message,
               style: TextStyle(fontSize: 18),
             ),
           ),
           SizedBox(height: 80),
-          // 씨앗 이미지
+          // 나무 이미지
           Image.asset(
-            'assets/seed.png', // assets 폴더에 씨앗 이미지를 추가해야 합니다.
+            'assets/seed.png', // 상태에 따라 이미지 변경 가능
             height: 150,
           ),
-          SizedBox(height: 80), // 사진과 하단 버튼 사이의 간격을 10으로 설정
           // 하단 버튼들
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 20),
@@ -92,30 +213,32 @@ class TreePage extends StatelessWidget {
                   points: '10p',
                   icon: Icons.water_drop,
                   iconColor: Colors.blue,
+                  onPressed: () => usePoints(10),
                 ),
                 ActionButton(
                   label: '햇빛쐬기',
                   points: '20p',
                   icon: Icons.wb_sunny,
                   iconColor: Colors.red,
+                  onPressed: () => usePoints(20),
                 ),
                 ActionButton(
                   label: '비료주기',
                   points: '50p',
                   icon: Icons.grass,
                   iconColor: Colors.brown,
+                  onPressed: () => usePoints(50),
                 ),
               ],
             ),
           ),
         ],
       ),
-      // 하단 메뉴
       bottomNavigationBar: BottomNavigationBar(
-        type: BottomNavigationBarType.fixed, // 모든 아이템 간 동일한 간격 유지
-        currentIndex: 2, // 현재 화면은 내 나무
-        selectedItemColor: Colors.black, // 선택된 아이콘과 텍스트 색상
-        unselectedItemColor: Colors.grey, // 선택되지 않은 아이콘과 텍스트 색상
+        type: BottomNavigationBarType.fixed,
+        currentIndex: 2,
+        selectedItemColor: Colors.black,
+        unselectedItemColor: Colors.grey,
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: '홈'),
           BottomNavigationBarItem(icon: Icon(Icons.calendar_today), label: '달력'),
@@ -132,6 +255,7 @@ class ActionButton extends StatelessWidget {
   final String points;
   final IconData icon;
   final Color iconColor;
+  final VoidCallback onPressed;
 
   const ActionButton({
     Key? key,
@@ -139,65 +263,56 @@ class ActionButton extends StatelessWidget {
     required this.points,
     required this.icon,
     required this.iconColor,
+    required this.onPressed,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: 100, // 고정된 너비
-      height: 120, // 고정된 높이
-      decoration: BoxDecoration(
-        border: Border.all(color: Color(0xFF67EACA)), // 테두리 색상
-        borderRadius: BorderRadius.circular(10), // 테두리 라운드
-      ),
-      child: Stack(
-        children: [
-          // 카드 메인 콘텐츠
-          Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center, // 세로 중앙 정렬
-              crossAxisAlignment: CrossAxisAlignment.center, // 가로 중앙 정렬
-              children: [
-                Icon(
-                  icon,
-                  size: 30,
-                  color: iconColor, // 아이콘 색상 설정
-                ),
-                SizedBox(height: 8), // 아이콘과 텍스트 간격
-                Text(
-                  label,
-                  textAlign: TextAlign.center, // 텍스트 중앙 정렬
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w500,
+    return GestureDetector(
+      onTap: onPressed,
+      child: Container(
+        width: 100,
+        height: 120,
+        decoration: BoxDecoration(
+          border: Border.all(color: Color(0xFF67EACA)),
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Stack(
+          children: [
+            Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(icon, size: 30, color: iconColor),
+                  SizedBox(height: 8),
+                  Text(
+                    label,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
                   ),
-                ),
-              ],
-            ),
-          ),
-          // 우측 상단 라운드 박스
-          Positioned(
-            top: 8, // 위쪽 간격
-            right: 8, // 오른쪽 간격
-            child: Container(
-              padding: EdgeInsets.symmetric(horizontal: 6, vertical: 2), // 내부 여백 추가
-              width: 40, // 박스 너비
-              height: 20, // 박스 높이
-              alignment: Alignment.center, // 텍스트를 중앙에 배치
-              decoration: BoxDecoration(
-                color: Color(0xFFB0F4E6), // 배경 색상
-                borderRadius: BorderRadius.circular(10), // 라운드 처리
+                ],
               ),
-              child: Text(
-                points, // "10p" 텍스트
-                style: TextStyle(
-                  fontSize: 12,
-                  color: Colors.black,
+            ),
+            Positioned(
+              top: 8,
+              right: 8,
+              child: Container(
+                padding: EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                width: 40,
+                height: 20,
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  color: Color(0xFFB0F4E6),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Text(
+                  points,
+                  style: TextStyle(fontSize: 12, color: Colors.black),
                 ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
