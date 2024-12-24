@@ -6,7 +6,7 @@ class TreePage extends StatefulWidget {
 }
 
 class _TreePageState extends State<TreePage> {
-  int points = 200; // 초기 포인트
+  int points = 3000; // 초기 포인트
   final int maxPoints = 2160; // 상태바의 최대 값
   String treeState = "씨앗"; // 나무 상태
   String message = "응애 나 씨앗"; // 상태 메시지
@@ -14,6 +14,7 @@ class _TreePageState extends State<TreePage> {
   double progress = 0; // 상태바 게이지 (0.0 ~ 1.0)
   final List<int> levelPoints = [80, 240, 720, 2160]; // 레벨업 기준점
   int currentLevel = 0; // 현재 레벨 (0: 씨앗, 1: 새싹, 2: 나뭇가지, 3: 나무, 4: 꽃)
+  String selectedCoupon = "플라스틱 방앗간 제품 교환권"; // 기본 선택 값
 
   // 레벨업 모달 표시
   void showLevelUpModal() {
@@ -63,27 +64,16 @@ class _TreePageState extends State<TreePage> {
             treeState = "꽃";
             message = "짜잔 난 꽃";
             treeImage = 'assets/flower.png';
+
+            // 꽃 레벨로 변경된 경우 완료 모달 표시
+            Future.delayed(Duration(milliseconds: 500), () {
+              // 레벨업 UI 업데이트 후 모달 표시
+              showCompletionModal();
+            });
             break;
         }
       }
     });
-  }
-
-  // 포인트 사용 및 상태바 증가
-  void usePoints(int cost) {
-    if (points >= cost) {
-      setState(() {
-        points -= cost; // 포인트 차감
-        progress += cost / maxPoints; // 사용된 포인트 비율만큼 게이지 증가
-        if (progress > 1.0) progress = 1.0; // 상태바 최대값 제한
-
-        // 특정 지점에서만 레벨업 모달 표시
-        if (currentLevel < levelPoints.length &&
-            progress >= levelPoints[currentLevel] / maxPoints) {
-          showLevelUpModal();
-        }
-      });
-    }
   }
 
   // 액션 버튼을 눌렀을 때 호출되는 함수
@@ -162,6 +152,99 @@ class _TreePageState extends State<TreePage> {
       );
     }
   }
+
+  // 2160점 채웠을 때 보여주는 완료 모달
+  void showCompletionModal() {
+    showDialog(
+      context: context,
+      barrierDismissible: false, // 모달 외부 클릭 시 닫히지 않음
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Row(
+            children: [
+              Text("🎉✨ 나무가 다 자랐어요!"),
+            ],
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min, // 내용 크기에 맞게 조정
+            children: [
+              Text("선물로 쿠폰을 드릴게요!"),
+              SizedBox(height: 20),
+              // 쿠폰 선택
+              Column(
+                children: [
+                  RadioListTile<String>(
+                    value: "플라스틱 방앗간 제품 교환권",
+                    groupValue: selectedCoupon,
+                    onChanged: (value) {
+                      setState(() {
+                        selectedCoupon = value!;
+                      });
+                    },
+                    title: Text("플라스틱 방앗간 제품 교환권"),
+                  ),
+                  RadioListTile<String>(
+                    value: "119REO 제품 교환권",
+                    groupValue: selectedCoupon,
+                    onChanged: (value) {
+                      setState(() {
+                        selectedCoupon = value!;
+                      });
+                    },
+                    title: Text("119REO 제품 교환권"),
+                  ),
+                  RadioListTile<String>(
+                    value: "seedkeeper 제품 교환권",
+                    groupValue: selectedCoupon,
+                    onChanged: (value) {
+                      setState(() {
+                        selectedCoupon = value!;
+                      });
+                    },
+                    title: Text("seedkeeper 제품 교환권"),
+                  ),
+                ],
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context); // 모달 닫기
+              },
+              child: Text("취소"),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pop(context); // 모달 닫기
+                print("선택된 쿠폰: $selectedCoupon"); // 선택된 쿠폰 처리
+              },
+              child: Text("확인"),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+
+// 포인트 사용 및 상태바 증가
+  void usePoints(int cost) {
+    if (points >= cost) {
+      setState(() {
+        points -= cost; // 포인트 차감
+        progress += cost / maxPoints; // 사용된 포인트 비율만큼 게이지 증가
+        if (progress > 1.0) progress = 1.0; // 상태바 최대값 제한
+
+        // 특정 지점에서만 레벨업 모달 표시
+        if (currentLevel < levelPoints.length &&
+            progress >= levelPoints[currentLevel] / maxPoints) {
+          showLevelUpModal();
+        }
+      });
+    }
+  }
+
 
   @override
   Widget build(BuildContext context) {
