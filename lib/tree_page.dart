@@ -8,7 +8,7 @@ class TreePage extends StatefulWidget {
 }
 
 class _TreePageState extends State<TreePage> {
-  int points = 3000; // 초기 포인트
+  int points = 5000; // 초기 포인트
   final int maxPoints = 2160; // 상태바의 최대 값
   String treeState = "씨앗"; // 나무 상태
   String message = "응애 나 씨앗"; // 상태 메시지
@@ -18,7 +18,9 @@ class _TreePageState extends State<TreePage> {
   int currentLevel = 0; // 현재 레벨 (0: 씨앗, 1: 새싹, 2: 나뭇가지, 3: 나무, 4: 꽃)
   String selectedCoupon = "플라스틱 방앗간 제품 교환권"; // 기본 선택 값
   List<String> myCoupons = []; // 쿠폰 목록 저장
-  int couponCount = 0; // 현재 보유한 쿠폰 개수
+
+  // 쿠폰 개수를 동적으로 계산
+  int get couponCount => myCoupons.length;
 
   void showLevelUpModal() {
     showDialog(
@@ -232,38 +234,105 @@ class _TreePageState extends State<TreePage> {
   void showCompletionModal() {
     showDialog(
       context: context,
-      barrierDismissible: false, // 모달 외부 클릭 시 닫히지 않음
+      barrierDismissible: false,
       builder: (BuildContext context) {
         return StatefulBuilder(
           builder: (context, setState) {
             return CupertinoAlertDialog(
-              title: Text("🎉✨ 나무가 다 자랐어요!"),
+              title: Padding(
+                padding: EdgeInsets.only(bottom: 10),
+                child: Text(
+                  "🎉✨ 나무가 다 자랐어요!",
+                  style: TextStyle(fontSize: 16),
+                ),
+              ),
               content: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  SizedBox(height: 10),
-                  Text("선물로 쿠폰을 드릴게요!"),
-                  SizedBox(height: 20),
-                  CupertinoSegmentedControl<String>(
-                    groupValue: selectedCoupon,
-                    onValueChanged: (value) {
-                      setState(() {
-                        selectedCoupon = value;
-                      });
-                    },
-                    children: {
-                      "플라스틱 방앗간 제품 교환권": Padding(
-                        padding: EdgeInsets.all(8.0),
-                        child: Text("플라스틱 방앗간 제품 교환권"),
+                  Text(
+                    "선물로 쿠폰을 드릴게요!",
+                    style: TextStyle(fontSize: 14),
+                  ),
+                  SizedBox(height: 15),
+                  // 선택 가능한 텍스트 리스트
+                  Column(
+                    children: [
+                      GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            selectedCoupon = "플라스틱 방앗간 제품 교환권";
+                          });
+                        },
+                        child: Container(
+                          color: selectedCoupon == "플라스틱 방앗간 제품 교환권"
+                              ? Colors.blue[100]
+                              : Colors.transparent,
+                          padding: EdgeInsets.symmetric(vertical: 8),
+                          child: Row(
+                            children: [
+                              Icon(
+                                selectedCoupon == "플라스틱 방앗간 제품 교환권"
+                                    ? CupertinoIcons.check_mark
+                                    : CupertinoIcons.circle,
+                                size: 20,
+                              ),
+                              SizedBox(width: 8),
+                              Text("플라스틱 방앗간 제품 교환권"),
+                            ],
+                          ),
+                        ),
                       ),
-                      "119REO 제품 교환권": Padding(
-                        padding: EdgeInsets.all(8.0),
-                        child: Text("119REO 제품 교환권"),
+                      GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            selectedCoupon = "119REO 제품 교환권";
+                          });
+                        },
+                        child: Container(
+                          color: selectedCoupon == "119REO 제품 교환권"
+                              ? Colors.blue[100]
+                              : Colors.transparent,
+                          padding: EdgeInsets.symmetric(vertical: 8),
+                          child: Row(
+                            children: [
+                              Icon(
+                                selectedCoupon == "119REO 제품 교환권"
+                                    ? CupertinoIcons.check_mark
+                                    : CupertinoIcons.circle,
+                                size: 20,
+                              ),
+                              SizedBox(width: 8),
+                              Text("119REO 제품 교환권"),
+                            ],
+                          ),
+                        ),
                       ),
-                      "seedkeeper 제품 교환권": Padding(
-                        padding: EdgeInsets.all(8.0),
-                        child: Text("seedkeeper 제품 교환권"),
+                      GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            selectedCoupon = "seedkeeper 제품 교환권";
+                          });
+                        },
+                        child: Container(
+                          color: selectedCoupon == "seedkeeper 제품 교환권"
+                              ? Colors.blue[100]
+                              : Colors.transparent,
+                          padding: EdgeInsets.symmetric(vertical: 8),
+                          child: Row(
+                            children: [
+                              Icon(
+                                selectedCoupon == "seedkeeper 제품 교환권"
+                                    ? CupertinoIcons.check_mark
+                                    : CupertinoIcons.circle,
+                                size: 20,
+                              ),
+                              SizedBox(width: 8),
+                              Text("seedkeeper 제품 교환권"),
+                            ],
+                          ),
+                        ),
                       ),
-                    },
+                    ],
                   ),
                 ],
               ),
@@ -272,15 +341,26 @@ class _TreePageState extends State<TreePage> {
                   onPressed: () {
                     Navigator.pop(context);
                   },
-                  child: Text("취소"),
+                  child: Text("취소", style: TextStyle(color: Colors.blue)),
                 ),
                 CupertinoDialogAction(
                   isDefaultAction: true,
                   onPressed: () {
-                    myCoupons.add(selectedCoupon);
+                    setState(() {
+                      myCoupons.add(selectedCoupon); // 쿠폰 추가
+                    });
                     Navigator.pop(context);
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => CouponPage(
+                          couponCount: couponCount,
+                          myCoupons: myCoupons,
+                        ),
+                      ),
+                    );
                   },
-                  child: Text("확인"),
+                  child: Text("확인", style: TextStyle(color: Colors.blue)),
                 ),
               ],
             );
@@ -289,7 +369,6 @@ class _TreePageState extends State<TreePage> {
       },
     );
   }
-
 
 
 
@@ -313,7 +392,6 @@ class _TreePageState extends State<TreePage> {
 
   void resetTree() {
     setState(() {
-      points = 3000; // 초기 포인트
       currentLevel = 0; // 레벨 초기화
       progress = 0; // 상태바 게이지 초기화
       treeState = "씨앗"; // 초기 상태
@@ -348,7 +426,10 @@ class _TreePageState extends State<TreePage> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => CouponPage(couponCount: couponCount),
+                        builder: (context) => CouponPage(
+                          couponCount: myCoupons.length,
+                          myCoupons: myCoupons, // 쿠폰 리스트 전달
+                        ),
                       ),
                     );
                   },
