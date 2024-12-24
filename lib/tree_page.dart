@@ -247,7 +247,7 @@ class _TreePageState extends State<TreePage> {
                     groupValue: selectedCoupon,
                     onValueChanged: (value) {
                       setState(() {
-                        selectedCoupon = value!;
+                        selectedCoupon = value;
                       });
                     },
                     children: {
@@ -493,7 +493,7 @@ class _TreePageState extends State<TreePage> {
               style: TextStyle(fontSize: 18),
             ),
           ),
-          SizedBox(height: 80),
+          SizedBox(height: 40),
           // 나무 이미지
           Image.asset(
             treeImage, // 상태에 따라 이미지 변경
