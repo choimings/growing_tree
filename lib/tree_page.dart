@@ -6,10 +6,11 @@ class TreePage extends StatefulWidget {
 }
 
 class _TreePageState extends State<TreePage> {
-  int points = 2160; // 초기 포인트
+  int points = 3000; // 초기 포인트
   final int maxPoints = 2160; // 상태바의 최대 값
   String treeState = "씨앗"; // 나무 상태
   String message = "응애 나 씨앗"; // 상태 메시지
+  String treeImage = 'assets/seed.png'; // 기본 이미지
   double progress = 0; // 상태바 게이지 (0.0 ~ 1.0)
   final List<int> levelPoints = [80, 240, 720, 2160]; // 레벨업 기준점
   int currentLevel = 0; // 현재 레벨 (0: 씨앗, 1: 새싹, 2: 나뭇가지, 3: 나무, 4: 꽃)
@@ -46,18 +47,22 @@ class _TreePageState extends State<TreePage> {
           case 1:
             treeState = "새싹";
             message = "응애 나 새싹";
+            treeImage = 'assets/sprout.png';
             break;
           case 2:
             treeState = "나뭇가지";
             message = "ㅎㅇ 난 나뭇가지";
+            treeImage = 'assets/branch.png';
             break;
           case 3:
             treeState = "나무";
             message = "후훗 난 나무";
+            treeImage = 'assets/tree.png';
             break;
           case 4:
             treeState = "꽃";
             message = "짜잔 난 꽃";
+            treeImage = 'assets/flower.png';
             break;
         }
       }
@@ -199,7 +204,7 @@ class _TreePageState extends State<TreePage> {
           SizedBox(height: 80),
           // 나무 이미지
           Image.asset(
-            'assets/seed.png', // 상태에 따라 이미지 변경 가능
+            treeImage, // 상태에 따라 이미지 변경
             height: 150,
           ),
           // 하단 버튼들
