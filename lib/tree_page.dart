@@ -6,7 +6,7 @@ class TreePage extends StatefulWidget {
 }
 
 class _TreePageState extends State<TreePage> {
-  int points = 3000; // 초기 포인트
+  int points = 200; // 초기 포인트
   final int maxPoints = 2160; // 상태바의 최대 값
   String treeState = "씨앗"; // 나무 상태
   String message = "응애 나 씨앗"; // 상태 메시지
@@ -83,6 +83,83 @@ class _TreePageState extends State<TreePage> {
           showLevelUpModal();
         }
       });
+    }
+  }
+
+  // 액션 버튼을 눌렀을 때 호출되는 함수
+  void handleAction(String action, int cost) {
+    if (points >= cost) {
+      // 포인트가 충분한 경우 확인 모달 표시
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Row(
+              children: [
+                Image.asset(
+                  action == '물주기'
+                      ? 'assets/water.png'
+                      : action == '햇빛쐬기'
+                      ? 'assets/sun.png'
+                      : 'assets/fertilizer.png',
+                  height: 30,
+                  width: 30,
+                ),
+                SizedBox(width: 10),
+                Text('$action')
+              ],
+            ),
+            content: Text("$cost 포인트를 사용해서 $action 하시겠어요?"),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context); // 모달 닫기
+                },
+                child: Text("아니요"),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.pop(context); // 모달 닫기
+                  usePoints(cost); // 포인트 사용
+                },
+                child: Text("네"),
+              ),
+            ],
+          );
+        },
+      );
+    } else {
+      // 포인트가 부족한 경우 포인트 부족 모달 표시
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Row(
+              children: [
+                Icon(Icons.error, color: Colors.red),
+                SizedBox(width: 10),
+                Text("포인트 부족"),
+              ],
+            ),
+            content: Text("포인트가 부족해요. 포인트를 쌓으러 가시겠어요?"),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context); // 모달 닫기
+                },
+                child: Text("아니요"),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.pop(context); // 모달 닫기
+                  // 포인트 충전 화면으로 이동 로직 추가 가능
+                },
+                child: Text("네"),
+              ),
+            ],
+          );
+        },
+      );
     }
   }
 
@@ -217,19 +294,19 @@ class _TreePageState extends State<TreePage> {
                   label: '물주기',
                   points: '10p',
                   imagePath: 'assets/water.png',
-                  onPressed: () => usePoints(10),
+                  onPressed: () => handleAction('물주기', 10),
                 ),
                 ActionButton(
                   label: '햇빛쐬기',
                   points: '20p',
                   imagePath: 'assets/sun.png',
-                  onPressed: () => usePoints(20),
+                  onPressed: () => handleAction('햇빛쐬기', 20),
                 ),
                 ActionButton(
                   label: '비료주기',
                   points: '50p',
                   imagePath: 'assets/fertilizer.png',
-                  onPressed: () => usePoints(50),
+                  onPressed: () => handleAction('비료주기', 50),
                 ),
               ],
             ),
