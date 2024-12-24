@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 
 class TreePage extends StatefulWidget {
   @override
@@ -17,28 +18,39 @@ class _TreePageState extends State<TreePage> {
   String selectedCoupon = "플라스틱 방앗간 제품 교환권"; // 기본 선택 값
   List<String> myCoupons = []; // 쿠폰 목록 저장
 
-  // 레벨업 모달 표시
   void showLevelUpModal() {
     showDialog(
       context: context,
       barrierDismissible: false, // 모달 외부 클릭 시 닫히지 않음
       builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text("레벨업"),
-          content: Text("레벨업하시겠습니까?"),
+        return CupertinoAlertDialog(
+          title: Padding(
+            padding: const EdgeInsets.only(bottom: 10.0), // 제목과 내용 간격 추가
+            child: Text("레벨업"),
+          ),
+          content: Padding(
+            padding: const EdgeInsets.only(top: 10.0), // 내용과 버튼 간격 추가
+            child: Text("레벨업 하시겠습니까?"),
+          ),
           actions: [
-            ElevatedButton(
+            CupertinoDialogAction(
+              isDefaultAction: true,
               onPressed: () {
                 Navigator.pop(context);
                 levelUp();
               },
-              child: Text("레벨업하기"),
+              child: Text(
+                "레벨업하기",
+                style: TextStyle(color: CupertinoColors.activeBlue), // 텍스트 색상 파란색
+              ),
             ),
           ],
         );
       },
     );
   }
+
+
 
   // 레벨업 처리
   void levelUp() {
@@ -84,8 +96,9 @@ class _TreePageState extends State<TreePage> {
       showDialog(
         context: context,
         builder: (BuildContext context) {
-          return AlertDialog(
-            title: Row(
+          return CupertinoAlertDialog(
+            title: Column(
+              mainAxisAlignment: MainAxisAlignment.center, // 위치를 중앙으로
               children: [
                 Image.asset(
                   action == '물주기'
@@ -96,56 +109,87 @@ class _TreePageState extends State<TreePage> {
                   height: 30,
                   width: 30,
                 ),
-                SizedBox(width: 10),
-                Text('$action')
+                SizedBox(height: 10), // 이미지와 텍스트 사이 간격
+                Text('$action'),
               ],
             ),
-            content: Text("$cost 포인트를 사용해서 $action 하시겠어요?"),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  Navigator.pop(context); // 모달 닫기
-                },
-                child: Text("아니요"),
+            content: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 10.0), // 텍스트와 위아래 간격
+              child: Text(
+                "$cost 포인트를 사용해서\n$action 하시겠어요?", // 텍스트 개행
+                softWrap: true, // 자동 줄바꿈 허용
+                overflow: TextOverflow.visible, // 텍스트 잘림 방지
+                textAlign: TextAlign.center, // 텍스트 중앙 정렬
               ),
-              ElevatedButton(
+            ),
+            actions: [
+              CupertinoDialogAction(
                 onPressed: () {
-                  Navigator.pop(context); // 모달 닫기
+                  Navigator.pop(context);
+                },
+                child: Text(
+                  "아니요",
+                  style: TextStyle(color: CupertinoColors.activeBlue), // 텍스트 색상 파란색
+                ),
+              ),
+              CupertinoDialogAction(
+                isDefaultAction: true,
+                onPressed: () {
+                  Navigator.pop(context);
                   usePoints(cost); // 포인트 사용
                 },
-                child: Text("네"),
+                child: Text(
+                  "네",
+                  style: TextStyle(color: CupertinoColors.activeBlue), // 텍스트 색상 파란색
+                ),
               ),
             ],
           );
         },
       );
     } else {
-      // 포인트가 부족한 경우 포인트 부족 모달 표시
+      // 포인트가 부족한 경우
       showDialog(
         context: context,
         builder: (BuildContext context) {
-          return AlertDialog(
+          return CupertinoAlertDialog(
             title: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(Icons.error, color: Colors.red),
+                Icon(CupertinoIcons.exclamationmark_circle, color: CupertinoColors.systemRed),
                 SizedBox(width: 10),
                 Text("포인트 부족"),
               ],
             ),
-            content: Text("포인트가 부족해요. 포인트를 쌓으러 가시겠어요?"),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  Navigator.pop(context); // 모달 닫기
-                },
-                child: Text("아니요"),
+            content: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 10.0), // 텍스트와 위아래 간격
+              child: Text(
+                "포인트가 부족해요.\n포인트를 쌓으러 가시겠어요?", // 텍스트 개행
+                softWrap: true,
+                overflow: TextOverflow.visible,
+                textAlign: TextAlign.center,
               ),
-              ElevatedButton(
+            ),
+            actions: [
+              CupertinoDialogAction(
                 onPressed: () {
-                  Navigator.pop(context); // 모달 닫기
+                  Navigator.pop(context);
+                },
+                child: Text(
+                  "아니요",
+                  style: TextStyle(color: CupertinoColors.activeBlue), // 텍스트 색상 파란색
+                ),
+              ),
+              CupertinoDialogAction(
+                isDefaultAction: true,
+                onPressed: () {
+                  Navigator.pop(context);
                   // 포인트 충전 화면으로 이동 로직 추가 가능
                 },
-                child: Text("네"),
+                child: Text(
+                  "네",
+                  style: TextStyle(color: CupertinoColors.activeBlue), // 텍스트 색상 파란색
+                ),
               ),
             ],
           );
@@ -153,6 +197,8 @@ class _TreePageState extends State<TreePage> {
       );
     }
   }
+
+
 
   // "내 쿠폰함" 모달
   void showMyCouponsModal() {
@@ -188,68 +234,49 @@ class _TreePageState extends State<TreePage> {
       builder: (BuildContext context) {
         return StatefulBuilder(
           builder: (context, setState) {
-            return AlertDialog(
-              title: Row(
-                children: [
-                  Text("🎉✨ 나무가 다 자랐어요!"),
-                ],
-              ),
+            return CupertinoAlertDialog(
+              title: Text("🎉✨ 나무가 다 자랐어요!"),
               content: Column(
-                mainAxisSize: MainAxisSize.min, // 내용 크기에 맞게 조정
                 children: [
+                  SizedBox(height: 10),
                   Text("선물로 쿠폰을 드릴게요!"),
                   SizedBox(height: 20),
-                  // 쿠폰 선택
-                  Column(
-                    children: [
-                      RadioListTile<String>(
-                        value: "플라스틱 방앗간 제품 교환권",
-                        groupValue: selectedCoupon,
-                        onChanged: (value) {
-                          setState(() {
-                            selectedCoupon = value!;
-                          });
-                        },
-                        title: Text("플라스틱 방앗간 제품 교환권"),
+                  CupertinoSegmentedControl<String>(
+                    groupValue: selectedCoupon,
+                    onValueChanged: (value) {
+                      setState(() {
+                        selectedCoupon = value!;
+                      });
+                    },
+                    children: {
+                      "플라스틱 방앗간 제품 교환권": Padding(
+                        padding: EdgeInsets.all(8.0),
+                        child: Text("플라스틱 방앗간 제품 교환권"),
                       ),
-                      RadioListTile<String>(
-                        value: "119REO 제품 교환권",
-                        groupValue: selectedCoupon,
-                        onChanged: (value) {
-                          setState(() {
-                            selectedCoupon = value!;
-                          });
-                        },
-                        title: Text("119REO 제품 교환권"),
+                      "119REO 제품 교환권": Padding(
+                        padding: EdgeInsets.all(8.0),
+                        child: Text("119REO 제품 교환권"),
                       ),
-                      RadioListTile<String>(
-                        value: "seedkeeper 제품 교환권",
-                        groupValue: selectedCoupon,
-                        onChanged: (value) {
-                          setState(() {
-                            selectedCoupon = value!;
-                          });
-                        },
-                        title: Text("seedkeeper 제품 교환권"),
+                      "seedkeeper 제품 교환권": Padding(
+                        padding: EdgeInsets.all(8.0),
+                        child: Text("seedkeeper 제품 교환권"),
                       ),
-                    ],
+                    },
                   ),
                 ],
               ),
               actions: [
-                TextButton(
+                CupertinoDialogAction(
                   onPressed: () {
-                    Navigator.pop(context); // 모달 닫기
+                    Navigator.pop(context);
                   },
                   child: Text("취소"),
                 ),
-                ElevatedButton(
+                CupertinoDialogAction(
+                  isDefaultAction: true,
                   onPressed: () {
-                    setState(() {
-                      myCoupons.add(selectedCoupon); // 선택한 쿠폰 저장
-                    });
-                    Navigator.pop(context); // 모달 닫기
-                    print("선택된 쿠폰: $selectedCoupon"); // 디버깅 로그
+                    myCoupons.add(selectedCoupon);
+                    Navigator.pop(context);
                   },
                   child: Text("확인"),
                 ),
@@ -260,6 +287,7 @@ class _TreePageState extends State<TreePage> {
       },
     );
   }
+
 
 
 
