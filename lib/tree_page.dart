@@ -159,73 +159,78 @@ class _TreePageState extends State<TreePage> {
       context: context,
       barrierDismissible: false, // 모달 외부 클릭 시 닫히지 않음
       builder: (BuildContext context) {
-        return AlertDialog(
-          title: Row(
-            children: [
-              Text("🎉✨ 나무가 다 자랐어요!"),
-            ],
-          ),
-          content: Column(
-            mainAxisSize: MainAxisSize.min, // 내용 크기에 맞게 조정
-            children: [
-              Text("선물로 쿠폰을 드릴게요!"),
-              SizedBox(height: 20),
-              // 쿠폰 선택
-              Column(
+        return StatefulBuilder( // StatefulBuilder를 사용하여 상태 관리
+          builder: (context, setState) {
+            return AlertDialog(
+              title: Row(
                 children: [
-                  RadioListTile<String>(
-                    value: "플라스틱 방앗간 제품 교환권",
-                    groupValue: selectedCoupon,
-                    onChanged: (value) {
-                      setState(() {
-                        selectedCoupon = value!;
-                      });
-                    },
-                    title: Text("플라스틱 방앗간 제품 교환권"),
-                  ),
-                  RadioListTile<String>(
-                    value: "119REO 제품 교환권",
-                    groupValue: selectedCoupon,
-                    onChanged: (value) {
-                      setState(() {
-                        selectedCoupon = value!;
-                      });
-                    },
-                    title: Text("119REO 제품 교환권"),
-                  ),
-                  RadioListTile<String>(
-                    value: "seedkeeper 제품 교환권",
-                    groupValue: selectedCoupon,
-                    onChanged: (value) {
-                      setState(() {
-                        selectedCoupon = value!;
-                      });
-                    },
-                    title: Text("seedkeeper 제품 교환권"),
+                  Text("🎉✨ 나무가 다 자랐어요!"),
+                ],
+              ),
+              content: Column(
+                mainAxisSize: MainAxisSize.min, // 내용 크기에 맞게 조정
+                children: [
+                  Text("선물로 쿠폰을 드릴게요!"),
+                  SizedBox(height: 20),
+                  // 쿠폰 선택
+                  Column(
+                    children: [
+                      RadioListTile<String>(
+                        value: "플라스틱 방앗간 제품 교환권",
+                        groupValue: selectedCoupon,
+                        onChanged: (value) {
+                          setState(() {
+                            selectedCoupon = value!;
+                          });
+                        },
+                        title: Text("플라스틱 방앗간 제품 교환권"),
+                      ),
+                      RadioListTile<String>(
+                        value: "119REO 제품 교환권",
+                        groupValue: selectedCoupon,
+                        onChanged: (value) {
+                          setState(() {
+                            selectedCoupon = value!;
+                          });
+                        },
+                        title: Text("119REO 제품 교환권"),
+                      ),
+                      RadioListTile<String>(
+                        value: "seedkeeper 제품 교환권",
+                        groupValue: selectedCoupon,
+                        onChanged: (value) {
+                          setState(() {
+                            selectedCoupon = value!;
+                          });
+                        },
+                        title: Text("seedkeeper 제품 교환권"),
+                      ),
+                    ],
                   ),
                 ],
               ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context); // 모달 닫기
-              },
-              child: Text("취소"),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.pop(context); // 모달 닫기
-                print("선택된 쿠폰: $selectedCoupon"); // 선택된 쿠폰 처리
-              },
-              child: Text("확인"),
-            ),
-          ],
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.pop(context); // 모달 닫기
+                  },
+                  child: Text("취소"),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.pop(context); // 모달 닫기
+                    print("선택된 쿠폰: $selectedCoupon"); // 선택된 쿠폰 처리
+                  },
+                  child: Text("확인"),
+                ),
+              ],
+            );
+          },
         );
       },
     );
   }
+
 
 
 // 포인트 사용 및 상태바 증가
@@ -244,6 +249,18 @@ class _TreePageState extends State<TreePage> {
       });
     }
   }
+
+  void resetTree() {
+    setState(() {
+      points = 3000; // 초기 포인트
+      currentLevel = 0; // 레벨 초기화
+      progress = 0; // 상태바 게이지 초기화
+      treeState = "씨앗"; // 초기 상태
+      message = "응애 나 씨앗"; // 초기 메시지
+      treeImage = 'assets/seed.png'; // 초기 이미지
+    });
+  }
+
 
 
   @override
@@ -367,10 +384,18 @@ class _TreePageState extends State<TreePage> {
             treeImage, // 상태에 따라 이미지 변경
             height: 150,
           ),
+
           // 하단 버튼들
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 20),
-            child: Row(
+            child: currentLevel == 4
+                ? Center(
+              child: ElevatedButton(
+                onPressed: resetTree,
+                child: Text("다시 키우기"),
+              ),
+            )
+                : Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 ActionButton(
@@ -378,22 +403,26 @@ class _TreePageState extends State<TreePage> {
                   points: '10p',
                   imagePath: 'assets/water.png',
                   onPressed: () => handleAction('물주기', 10),
+                  isDisabled: currentLevel == 4, // 꽃 상태에서는 비활성화
                 ),
                 ActionButton(
                   label: '햇빛쐬기',
                   points: '20p',
                   imagePath: 'assets/sun.png',
                   onPressed: () => handleAction('햇빛쐬기', 20),
+                  isDisabled: currentLevel == 4, // 꽃 상태에서는 비활성화
                 ),
                 ActionButton(
                   label: '비료주기',
                   points: '50p',
                   imagePath: 'assets/fertilizer.png',
                   onPressed: () => handleAction('비료주기', 50),
+                  isDisabled: currentLevel == 4, // 꽃 상태에서는 비활성화
                 ),
               ],
             ),
           ),
+
         ],
       ),
       bottomNavigationBar: BottomNavigationBar(
@@ -417,6 +446,7 @@ class ActionButton extends StatelessWidget {
   final String points;
   final String imagePath; // 이미지 경로 전달받기
   final VoidCallback onPressed;
+  final bool isDisabled; // 버튼 비활성화 여부
 
   const ActionButton({
     Key? key,
@@ -424,16 +454,18 @@ class ActionButton extends StatelessWidget {
     required this.points,
     required this.imagePath, // 이미지 경로
     required this.onPressed,
+    this.isDisabled = false, // 기본값: 활성화 상태
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: onPressed,
+      onTap: isDisabled ? null : onPressed, // 비활성화 시 onTap 비활성화
       child: Container(
         width: 100,
         height: 120,
         decoration: BoxDecoration(
+          color: isDisabled ? Colors.grey[300] : Colors.white, // 비활성화 시 회색 처리
           border: Border.all(color: Color(0xFF67EACA)),
           borderRadius: BorderRadius.circular(10),
         ),
@@ -443,17 +475,21 @@ class ActionButton extends StatelessWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                // 이미지 추가
-                Image.asset(
-                imagePath, // 이미지 경로 사용
-                height: 40, // 이미지 높이
-                width: 40, // 이미지 너비
-                ),
-                  SizedBox(height: 8,),
+                  // 이미지 추가
+                  Image.asset(
+                    imagePath,
+                    height: 40,
+                    width: 40,
+                  ),
+                  SizedBox(height: 8),
                   Text(
                     label,
                     textAlign: TextAlign.center,
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                      color: isDisabled ? Colors.grey : Colors.black, // 비활성화 시 텍스트 색상 변경
+                    ),
                   ),
                 ],
               ),
@@ -472,7 +508,10 @@ class ActionButton extends StatelessWidget {
                 ),
                 child: Text(
                   points,
-                  style: TextStyle(fontSize: 12, color: Colors.black),
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: isDisabled ? Colors.grey : Colors.black, // 비활성화 시 텍스트 색상 변경
+                  ),
                 ),
               ),
             ),
