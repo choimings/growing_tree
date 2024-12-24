@@ -211,22 +211,19 @@ class _TreePageState extends State<TreePage> {
                 ActionButton(
                   label: '물주기',
                   points: '10p',
-                  icon: Icons.water_drop,
-                  iconColor: Colors.blue,
+                  imagePath: 'assets/water.png',
                   onPressed: () => usePoints(10),
                 ),
                 ActionButton(
                   label: '햇빛쐬기',
                   points: '20p',
-                  icon: Icons.wb_sunny,
-                  iconColor: Colors.red,
+                  imagePath: 'assets/sun.png',
                   onPressed: () => usePoints(20),
                 ),
                 ActionButton(
                   label: '비료주기',
                   points: '50p',
-                  icon: Icons.grass,
-                  iconColor: Colors.brown,
+                  imagePath: 'assets/fertilizer.png',
                   onPressed: () => usePoints(50),
                 ),
               ],
@@ -253,16 +250,14 @@ class _TreePageState extends State<TreePage> {
 class ActionButton extends StatelessWidget {
   final String label;
   final String points;
-  final IconData icon;
-  final Color iconColor;
+  final String imagePath; // 이미지 경로 전달받기
   final VoidCallback onPressed;
 
   const ActionButton({
     Key? key,
     required this.label,
     required this.points,
-    required this.icon,
-    required this.iconColor,
+    required this.imagePath, // 이미지 경로
     required this.onPressed,
   }) : super(key: key);
 
@@ -283,8 +278,13 @@ class ActionButton extends StatelessWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(icon, size: 30, color: iconColor),
-                  SizedBox(height: 8),
+                // 이미지 추가
+                Image.asset(
+                imagePath, // 이미지 경로 사용
+                height: 40, // 이미지 높이
+                width: 40, // 이미지 너비
+                ),
+                  SizedBox(height: 8,),
                   Text(
                     label,
                     textAlign: TextAlign.center,
